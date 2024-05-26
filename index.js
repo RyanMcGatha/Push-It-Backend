@@ -5,8 +5,8 @@ const { addUser, findUser } = require("./users");
 const bcrypt = require("bcryptjs");
 
 const app = express();
-const port = 3000;
-const secretKey = "your_secret_key"; // Use a strong secret key
+const port = process.env.PORT;
+const secretKey = process.env.SECRET_KEY;
 
 app.use(express.json());
 
