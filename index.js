@@ -1,14 +1,36 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const { addUser, findUser } = require("./users");
+const { addUser, findUser, updateProfilePic } = require("./users");
 const bcrypt = require("bcryptjs");
 
 const app = express();
 const port = process.env.PORT;
 const secretKey = process.env.SECRET_KEY;
 
+app.use(cors());
 app.use(express.json());
+
+app.patch("/profile-pic", authenticateToken, async (req, res) => {
+  const { username, profilePic } = req.body;
+
+  if (!username || !profilePic) {
+    return res
+      .status(400)
+      .json({ message: "Username and profile picture URL are required" });
+  }
+
+  try {
+    const updatedUser = await updateProfilePic(username, profilePic);
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating profile picture:", error);
+    res
+      .status(500)
+      .json({ message: "Error updating profile pic", error: error.message });
+  }
+});
 
 app.post("/register", async (req, res) => {
   const { username, email, password, fullname } = req.body;
