@@ -2,25 +2,43 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
-const { addUser, findUser, updateProfilePic } = require("./users");
 const bcrypt = require("bcryptjs");
+const {
+  addUser,
+  findUser,
+  updateProfilePic,
+  findChatsByUsername,
+} = require("./users");
 
 const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 const secretKey = process.env.SECRET_KEY;
 
 app.use(cors());
 app.use(express.json());
 
+function authenticateToken(req, res, next) {
+  const token = req.header("Authorization")?.split(" ")[1];
+  if (!token) {
+    return res.sendStatus(401);
+  }
+  jwt.verify(token, secretKey, (err, user) => {
+    if (err) {
+      console.error("Token verification error:", err);
+      return res.sendStatus(403);
+    }
+    req.user = user;
+    next();
+  });
+}
+
 app.patch("/profile-pic", authenticateToken, async (req, res) => {
   const { username, profilePic } = req.body;
-
   if (!username || !profilePic) {
     return res
       .status(400)
       .json({ message: "Username and profile picture URL are required" });
   }
-
   try {
     const updatedUser = await updateProfilePic(username, profilePic);
     res.json(updatedUser);
@@ -34,6 +52,9 @@ app.patch("/profile-pic", authenticateToken, async (req, res) => {
 
 app.post("/register", async (req, res) => {
   const { username, email, password, fullname } = req.body;
+  if (!username || !email || !password || !fullname) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
   try {
     const user = await addUser(username, email, password, fullname);
     res.status(201).json(user);
@@ -44,6 +65,11 @@ app.post("/register", async (req, res) => {
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ message: "Username and password are required" });
+  }
   try {
     const user = await findUser(username);
     if (!user) {
@@ -66,19 +92,27 @@ app.get("/protected", authenticateToken, (req, res) => {
   res.json({ message: "This is a protected route", user: req.user });
 });
 
-function authenticateToken(req, res, next) {
-  const token = req.header("Authorization")?.split(" ")[1];
-  if (!token) {
-    return res.sendStatus(401);
-  }
-  jwt.verify(token, secretKey, (err, user) => {
-    if (err) {
-      return res.sendStatus(403);
+app.get("/current-user", authenticateToken, async (req, res) => {
+  try {
+    const user = await findUser(req.user.username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    req.user = user;
-    next();
-  });
-}
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user data", error });
+  }
+});
+
+app.get("/chats", authenticateToken, async (req, res) => {
+  const username = req.user.username;
+  try {
+    const chats = await findChatsByUsername(username);
+    res.json(chats);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching chats", error });
+  }
+});
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

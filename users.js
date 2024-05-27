@@ -31,23 +31,19 @@ const findUser = async (username) => {
 const updateProfilePic = async (username, profilePic) => {
   const client = await pool.connect();
   try {
-    // Input validation
     if (!username || !profilePic) {
       throw new Error("Invalid input: username and profilePic are required");
     }
 
-    // Update query
     const result = await client.query(
       "UPDATE user_profiles SET profile_pic = $1 WHERE username = $2 RETURNING *",
       [profilePic, username]
     );
 
-    // Check if the update was successful
     if (result.rows.length === 0) {
       throw new Error(`User with username ${username} not found`);
     }
 
-    // Return the updated user profile
     return result.rows[0];
   } catch (error) {
     console.error("Error updating profile picture:", error);
@@ -57,4 +53,17 @@ const updateProfilePic = async (username, profilePic) => {
   }
 };
 
-module.exports = { addUser, findUser, updateProfilePic };
+const findChatsByUsername = async (username) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "SELECT * FROM chats WHERE $1 = ANY(user_names)",
+      [username]
+    );
+    return result.rows;
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = { addUser, findUser, updateProfilePic, findChatsByUsername };
