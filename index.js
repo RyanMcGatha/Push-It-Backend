@@ -8,6 +8,8 @@ const {
   findUser,
   updateProfilePic,
   findChatsByUsername,
+  findUserProfiles,
+  getAllUsernames,
 } = require("./users");
 
 const app = express();
@@ -59,6 +61,7 @@ app.post("/register", async (req, res) => {
     const user = await addUser(username, email, password, fullname);
     res.status(201).json(user);
   } catch (error) {
+    console.error("Error registering user:", error);
     res.status(500).json({ message: "Error registering user", error });
   }
 });
@@ -84,6 +87,7 @@ app.post("/login", async (req, res) => {
     });
     res.json({ token });
   } catch (error) {
+    console.error("Error logging in:", error);
     res.status(500).json({ message: "Error logging in", error });
   }
 });
@@ -100,6 +104,7 @@ app.get("/current-user", authenticateToken, async (req, res) => {
     }
     res.json(user);
   } catch (error) {
+    console.error("Error fetching current user:", error);
     res.status(500).json({ message: "Error fetching user data", error });
   }
 });
@@ -110,7 +115,32 @@ app.get("/chats", authenticateToken, async (req, res) => {
     const chats = await findChatsByUsername(username);
     res.json(chats);
   } catch (error) {
+    console.error("Error fetching chats:", error);
     res.status(500).json({ message: "Error fetching chats", error });
+  }
+});
+
+app.get("/user-profiles", authenticateToken, async (req, res) => {
+  try {
+    const user = await findUserProfiles(req.user.username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching user profiles:", error);
+    res.status(500).json({ message: "Error fetching user data", error });
+  }
+});
+
+app.get("/usernames", async (req, res) => {
+  try {
+    const usernames = await getAllUsernames();
+    res.json(usernames);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching usernames", error: error.message });
   }
 });
 

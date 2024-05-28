@@ -66,4 +66,38 @@ const findChatsByUsername = async (username) => {
   }
 };
 
-module.exports = { addUser, findUser, updateProfilePic, findChatsByUsername };
+const findUserProfiles = async (username) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "SELECT * FROM user_profiles WHERE username = $1",
+      [username]
+    );
+    return result.rows.length ? result.rows[0] : null;
+  } finally {
+    client.release();
+  }
+};
+
+const getAllUsernames = async () => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT username FROM users");
+    console.log("All usernames found:", result.rows); // Debugging statement
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching all usernames:", error.message); // Debugging statement
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+module.exports = {
+  addUser,
+  findUser,
+  updateProfilePic,
+  findChatsByUsername,
+  findUserProfiles,
+  getAllUsernames,
+};
