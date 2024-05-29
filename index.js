@@ -11,6 +11,7 @@ const {
   findUserProfiles,
   getAllUsernames,
 } = require("./users");
+const { addChat, getMessages, addMessage } = require("./chats");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -66,6 +67,33 @@ app.post("/register", async (req, res) => {
   }
 });
 
+app.post("/add-chat", async (req, res) => {
+  const { chat_name, is_group, user_names } = req.body;
+  try {
+    const chat = await addChat(chat_name, is_group, user_names);
+    res.status(201).json(chat);
+  } catch (error) {
+    console.error("Error creating chat:", error);
+    res.status(500).json({ message: "Error creating chat", error });
+  }
+});
+
+app.post("/add-message", async (req, res) => {
+  const { chat_id, message_text, user_name, full_name } = req.body;
+  try {
+    const message = await addMessage(
+      chat_id,
+      message_text,
+      user_name,
+      full_name
+    );
+    res.status(201).json(message);
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ message: "Error sending message", error });
+  }
+});
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -117,6 +145,17 @@ app.get("/chats", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching chats:", error);
     res.status(500).json({ message: "Error fetching chats", error });
+  }
+});
+
+app.get("/messages", async (req, res) => {
+  const { chat_id } = req.query;
+  try {
+    const messages = await getMessages(chat_id);
+    res.json(messages);
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ message: "Error fetching messages", error });
   }
 });
 

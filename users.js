@@ -83,10 +83,10 @@ const getAllUsernames = async () => {
   const client = await pool.connect();
   try {
     const result = await client.query("SELECT username FROM users");
-    console.log("All usernames found:", result.rows); // Debugging statement
+    console.log("All usernames found:", result.rows);
     return result.rows;
   } catch (error) {
-    console.error("Error fetching all usernames:", error.message); // Debugging statement
+    console.error("Error fetching all usernames:", error.message);
     throw error;
   } finally {
     client.release();
