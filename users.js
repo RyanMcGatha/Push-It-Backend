@@ -66,7 +66,7 @@ const findChatsByUsername = async (username) => {
   }
 };
 
-const findUserProfiles = async (username) => {
+const findUserProfile = async (username) => {
   const client = await pool.connect();
   try {
     const result = await client.query(
@@ -74,6 +74,20 @@ const findUserProfiles = async (username) => {
       [username]
     );
     return result.rows.length ? result.rows[0] : null;
+  } finally {
+    client.release();
+  }
+};
+
+const getAllUserProfiles = async () => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT * FROM user_profiles");
+    console.log("All usernames found:", result.rows);
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching all usernames:", error.message);
+    throw error;
   } finally {
     client.release();
   }
@@ -98,6 +112,7 @@ module.exports = {
   findUser,
   updateProfilePic,
   findChatsByUsername,
-  findUserProfiles,
+  findUserProfile,
   getAllUsernames,
+  getAllUserProfiles,
 };

@@ -8,8 +8,9 @@ const {
   findUser,
   updateProfilePic,
   findChatsByUsername,
-  findUserProfiles,
+  findUserProfile,
   getAllUsernames,
+  getAllUserProfiles,
 } = require("./users");
 const { addChat, getMessages, addMessage } = require("./chats");
 
@@ -111,7 +112,7 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
     const token = jwt.sign({ username: user.username }, secretKey, {
-      expiresIn: "1h",
+      expiresIn: "10h",
     });
     res.json({ token });
   } catch (error) {
@@ -159,9 +160,9 @@ app.get("/messages", async (req, res) => {
   }
 });
 
-app.get("/user-profiles", authenticateToken, async (req, res) => {
+app.get("/user-profile", authenticateToken, async (req, res) => {
   try {
-    const user = await findUserProfiles(req.user.username);
+    const user = await findUserProfile(req.user.username);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -169,6 +170,17 @@ app.get("/user-profiles", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching user profiles:", error);
     res.status(500).json({ message: "Error fetching user data", error });
+  }
+});
+
+app.get("/all-profiles", async (req, res) => {
+  try {
+    const profiles = await getAllUserProfiles();
+    res.json(profiles);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching profiles", error: error.message });
   }
 });
 
