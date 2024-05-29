@@ -107,6 +107,28 @@ const getAllUsernames = async () => {
   }
 };
 
+const updatePassword = async (username, newPassword) => {
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "UPDATE users SET password = $1 WHERE username = $2 RETURNING *",
+      [hashedPassword, username]
+    );
+
+    if (result.rows.length === 0) {
+      throw new Error(`User with username ${username} not found`);
+    }
+
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error updating password:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 module.exports = {
   addUser,
   findUser,
@@ -115,4 +137,5 @@ module.exports = {
   findUserProfile,
   getAllUsernames,
   getAllUserProfiles,
+  updatePassword,
 };

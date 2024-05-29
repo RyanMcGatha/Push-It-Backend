@@ -11,8 +11,9 @@ const {
   findUserProfile,
   getAllUsernames,
   getAllUserProfiles,
+  updatePassword,
 } = require("./users");
-const { addChat, getMessages, addMessage } = require("./chats");
+const { addChat, getMessages, addMessage, deleteChat } = require("./chats");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,7 +37,7 @@ function authenticateToken(req, res, next) {
   });
 }
 
-app.patch("/profile-pic", authenticateToken, async (req, res) => {
+app.patch("/profile-pic", async (req, res) => {
   const { username, profilePic } = req.body;
   if (!username || !profilePic) {
     return res
@@ -65,6 +66,34 @@ app.post("/register", async (req, res) => {
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ message: "Error registering user", error });
+  }
+});
+
+app.patch("/update-password", authenticateToken, async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword) {
+    return res
+      .status(400)
+      .json({ message: "Old and new passwords are required" });
+  }
+
+  try {
+    const user = await findUser(req.user.username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    const updatedUser = await updatePassword(user.username, newPassword);
+    res.json({ message: "Password updated successfully", user: updatedUser });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    res.status(500).json({ message: "Error updating password", error });
   }
 });
 
@@ -146,6 +175,24 @@ app.get("/chats", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error fetching chats:", error);
     res.status(500).json({ message: "Error fetching chats", error });
+  }
+});
+
+app.delete("/delete-chat", async (req, res) => {
+  const { chat_id } = req.body;
+  if (!chat_id) {
+    return res.status(400).json({ message: "chat_id is required" });
+  }
+
+  try {
+    const chat = await deleteChat(chat_id);
+    if (chat.length === 0) {
+      return res.status(404).json({ message: "Chat not found" });
+    }
+    res.status(200).json(chat);
+  } catch (error) {
+    console.error("Error deleting chat:", error);
+    res.status(500).json({ message: "Error deleting chat", error });
   }
 });
 

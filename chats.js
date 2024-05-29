@@ -13,6 +13,22 @@ const addChat = async (chat_name, is_group, user_names) => {
   }
 };
 
+const deleteChat = async (chat_id) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "DELETE FROM chats WHERE chat_id = $1 RETURNING *",
+      [chat_id]
+    );
+    return result.rows;
+  } catch (error) {
+    console.error("Error deleting chat:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
 const getMessages = async (chat_id) => {
   const client = await pool.connect();
   try {
@@ -43,4 +59,5 @@ module.exports = {
   addChat,
   getMessages,
   addMessage,
+  deleteChat,
 };
