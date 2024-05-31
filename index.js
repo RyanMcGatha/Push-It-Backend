@@ -41,6 +41,10 @@ function authenticateToken(req, res, next) {
   });
 }
 
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
+
 app.patch("/profile-pic", async (req, res) => {
   const { username, profilePic } = req.body;
   if (!username || !profilePic) {
