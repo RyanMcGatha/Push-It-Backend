@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { sendVerificationEmail } = require("./mailer");
+
 const {
   addUser,
   findUser,
@@ -12,6 +14,8 @@ const {
   getAllUsernames,
   getAllUserProfiles,
   updatePassword,
+  verifyUserEmail,
+  findUserByToken,
 } = require("./users");
 const { addChat, getMessages, addMessage, deleteChat } = require("./chats");
 
@@ -62,10 +66,57 @@ app.post("/register", async (req, res) => {
   }
   try {
     const user = await addUser(username, email, password, fullname);
-    res.status(201).json(user);
+    console.log("Registered user:", user);
+    sendVerificationEmail(email, user.verification_token);
+    res.status(201).json({
+      message: "Registration successful. Check your email for verification.",
+    });
   } catch (error) {
     console.error("Error registering user:", error);
     res.status(500).json({ message: "Error registering user", error });
+  }
+});
+
+app.get("/verify-email", async (req, res) => {
+  const { token } = req.query;
+  if (!token) {
+    return res.status(400).json({ message: "Token is required" });
+  }
+  try {
+    const user = await findUserByToken(token);
+    if (!user) {
+      return res.status(400).json({ message: "Invalid token" });
+    }
+
+    await verifyUserEmail(user.id);
+    const updatedUser = await findUser(user.username);
+
+    res.status(200).json({
+      message: "Email verified successfully",
+      user: {
+        username: updatedUser.username,
+        email: updatedUser.email,
+        is_verified: updatedUser.is_verified,
+      },
+    });
+  } catch (error) {
+    console.error("Error verifying email:", error);
+    res.status(500).json({ message: "Error verifying email", error });
+  }
+});
+
+app.post("/resend-verification", async (req, res) => {
+  const { username } = req.body;
+  try {
+    const user = await findUser(username);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    sendVerificationEmail(user.email, user.verification_token);
+    res.status(200).json({ message: "Verification email resent" });
+  } catch (error) {
+    console.error("Error resending verification email:", error);
+    res.status(500).json({ message: "Error resending verification email" });
   }
 });
 
@@ -143,7 +194,14 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ username: user.username }, secretKey, {
       expiresIn: "10h",
     });
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        username: user.username,
+        email: user.email,
+        is_verified: user.is_verified,
+      },
+    });
   } catch (error) {
     console.error("Error logging in:", error);
     res.status(500).json({ message: "Error logging in", error });

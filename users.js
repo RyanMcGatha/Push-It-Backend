@@ -1,13 +1,15 @@
 const bcrypt = require("bcryptjs");
 const pool = require("./db");
+const crypto = require("crypto");
 
 const addUser = async (username, email, password, fullname) => {
   const hashedPassword = await bcrypt.hash(password, 10);
+  const verificationToken = crypto.randomBytes(32).toString("hex");
   const client = await pool.connect();
   try {
     const result = await client.query(
-      "INSERT INTO users (username, email, password, fullname) VALUES ($1, $2, $3, $4) RETURNING *",
-      [username, email, hashedPassword, fullname]
+      "INSERT INTO users (username, email, password, fullname, verification_token) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      [username, email, hashedPassword, fullname, verificationToken]
     );
     return result.rows[0];
   } finally {
@@ -23,6 +25,31 @@ const findUser = async (username) => {
       [username]
     );
     return result.rows[0];
+  } finally {
+    client.release();
+  }
+};
+
+const findUserByToken = async (token) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query(
+      "SELECT * FROM users WHERE verification_token = $1",
+      [token]
+    );
+    return result.rows[0];
+  } finally {
+    client.release();
+  }
+};
+
+const verifyUserEmail = async (userId) => {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      "UPDATE users SET is_verified = true, verification_token = NULL WHERE id = $1",
+      [userId]
+    );
   } finally {
     client.release();
   }
@@ -138,4 +165,6 @@ module.exports = {
   getAllUsernames,
   getAllUserProfiles,
   updatePassword,
+  findUserByToken,
+  verifyUserEmail,
 };
