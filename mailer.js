@@ -21,9 +21,7 @@ const sendVerificationEmail = (email, token) => {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Verify your email",
-    html: `<p>Click <a href="${url}">here</a> to verify your email.</p>
-    <button type="button" onClick=(${url})></button>
-`,
+    html: `<p>Click <a href="${url}">here</a> to verify your email</p>`,
   };
 
   console.log("Mail Options:", mailOptions);
