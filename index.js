@@ -23,7 +23,14 @@ const app = express();
 const port = process.env.PORT || 3000;
 const secretKey = process.env.SECRET_KEY;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://push-it.netlify.app",
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
 function authenticateToken(req, res, next) {
