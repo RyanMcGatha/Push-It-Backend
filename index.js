@@ -126,7 +126,7 @@ app.get("/verify-email", async (req, res) => {
   }
 });
 
-app.post("/resend-verification", authenticateToken, async (req, res) => {
+app.post("/resend-verification", async (req, res) => {
   const { username } = req.body;
   try {
     const user = await findUser(username);
