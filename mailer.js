@@ -4,7 +4,7 @@ require("dotenv").config();
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: process.env.SMTP_PORT,
-  secure: true,
+  secure: false,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -12,11 +12,6 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false,
   },
-  debug: true,
-  logger: true,
-  connectionTimeout: 30000,
-  greetingTimeout: 30000,
-  socketTimeout: 30000,
 });
 
 const sendVerificationEmail = (email, token) => {
@@ -26,7 +21,9 @@ const sendVerificationEmail = (email, token) => {
     from: process.env.EMAIL_USER,
     to: email,
     subject: "Verify your email",
-    html: `<p>Click <a href="${url}">here</a> to verify your email</p>`,
+    html: `<p>Click <a href="${url}">here</a> to verify your email.</p>
+    <button type="button" onClick=(${url})></button>
+`,
   };
 
   console.log("Mail Options:", mailOptions);

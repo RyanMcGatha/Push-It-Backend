@@ -23,23 +23,7 @@ const app = express();
 const port = process.env.PORT;
 const secretKey = process.env.SECRET_KEY;
 
-const allowedOrigins = ["https://push-it.netlify.app", "https://pushit.dev"];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        const msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
-    methods: "GET,POST,PUT,DELETE",
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
