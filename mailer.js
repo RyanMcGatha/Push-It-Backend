@@ -10,13 +10,14 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS,
   },
   tls: {
+    ciphers: "SSLv3",
     rejectUnauthorized: false,
   },
 });
 
 const sendVerificationEmail = (email, token) => {
   console.log(`Sending verification email to: ${email} with token: ${token}`);
-  const url = `http://localhost:3000/verify-email?token=${token}`;
+  const url = `https://push-it-backend.vercel.app/verify-email?token=${token}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
