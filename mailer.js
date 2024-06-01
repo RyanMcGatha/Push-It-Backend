@@ -19,7 +19,10 @@ const sendVerificationEmail = (email, token) => {
       console.log("Email sent");
     })
     .catch((error) => {
-      console.error("Error sending email:", error);
+      console.error(
+        "Error sending email:",
+        error.response ? error.response.body : error
+      );
     });
 };
 
