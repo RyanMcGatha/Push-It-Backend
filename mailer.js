@@ -3,8 +3,8 @@ require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: 465,
-  secure: true,
+  port: 465, // Use port 465 for implicit TLS
+  secure: true, // Set secure to true for port 465
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -12,8 +12,11 @@ const transporter = nodemailer.createTransport({
   tls: {
     rejectUnauthorized: false,
   },
-  logger: true,
-  debug: true,
+  logger: true, // Enable logging
+  debug: true, // Enable debug output
+  connectionTimeout: 10000, // 10 seconds timeout for connections
+  greetingTimeout: 10000, // 10 seconds timeout for greeting
+  socketTimeout: 10000, // 10 seconds timeout for socket
 });
 
 const sendVerificationEmail = (email, token) => {
