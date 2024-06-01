@@ -43,7 +43,7 @@ function authenticateToken(req, res, next) {
 }
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("root");
 });
 
 app.patch("/profile-pic", async (req, res) => {
