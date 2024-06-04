@@ -27,7 +27,6 @@ const secretKey = process.env.SECRET_KEY;
 app.use(cors());
 app.use(express.json());
 
-// Middleware for token authentication
 function authenticateToken(req, res, next) {
   const token = req.header("Authorization")?.split(" ")[1];
   if (!token) {
@@ -43,7 +42,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res
