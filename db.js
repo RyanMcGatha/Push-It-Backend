@@ -2,7 +2,7 @@ const { Pool } = require("pg");
 require("dotenv").config();
 
 if (!process.env.DB_CONNECT) {
-  throw new Error("Environment variable DB_CONNECT must be set");
+  throw new Error("Environment variable DB_CONNECT not be set");
 }
 
 const sslConfig = {
