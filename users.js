@@ -12,6 +12,9 @@ const addUser = async (username, email, password, fullname) => {
       [username, email, hashedPassword, fullname, verificationToken]
     );
     return result.rows[0];
+  } catch (error) {
+    console.error("Error adding user:", error);
+    throw error;
   } finally {
     client.release();
   }
@@ -25,6 +28,9 @@ const findUser = async (username) => {
       [username]
     );
     return result.rows[0];
+  } catch (error) {
+    console.error("Error finding user:", error);
+    throw error;
   } finally {
     client.release();
   }
@@ -38,6 +44,9 @@ const findUserByToken = async (token) => {
       [token]
     );
     return result.rows[0];
+  } catch (error) {
+    console.error("Error finding user by token:", error);
+    throw error;
   } finally {
     client.release();
   }
@@ -50,6 +59,9 @@ const verifyUserEmail = async (userId) => {
       "UPDATE users SET is_verified = true, verification_token = NULL WHERE id = $1",
       [userId]
     );
+  } catch (error) {
+    console.error("Error verifying user email:", error);
+    throw error;
   } finally {
     client.release();
   }
@@ -88,6 +100,9 @@ const findChatsByUsername = async (username) => {
       [username]
     );
     return result.rows;
+  } catch (error) {
+    console.error("Error finding chats by username:", error);
+    throw error;
   } finally {
     client.release();
   }
@@ -101,6 +116,9 @@ const findUserProfile = async (username) => {
       [username]
     );
     return result.rows.length ? result.rows[0] : null;
+  } catch (error) {
+    console.error("Error finding user profile:", error);
+    throw error;
   } finally {
     client.release();
   }
@@ -110,10 +128,10 @@ const getAllUserProfiles = async () => {
   const client = await pool.connect();
   try {
     const result = await client.query("SELECT * FROM user_profiles");
-    console.log("All usernames found:", result.rows);
+    console.log("All user profiles found:", result.rows);
     return result.rows;
   } catch (error) {
-    console.error("Error fetching all usernames:", error.message);
+    console.error("Error fetching all user profiles:", error.message);
     throw error;
   } finally {
     client.release();

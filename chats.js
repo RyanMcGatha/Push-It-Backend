@@ -10,6 +10,7 @@ const addChat = async (chat_name, is_group, user_names) => {
     );
     return result.rows[0];
   } catch (error) {
+    console.error("Error adding chat:", error);
     if (error.message.includes("Connection terminated unexpectedly")) {
       throw new Error("Servers are full, please wait");
     } else {
@@ -32,6 +33,7 @@ const deleteChat = async (chat_id) => {
     );
     return result.rows;
   } catch (error) {
+    console.error("Error deleting chat:", error);
     if (error.message.includes("Connection terminated unexpectedly")) {
       throw new Error("Servers are full, please wait");
     } else {
@@ -54,6 +56,7 @@ const getMessages = async (chat_id) => {
     );
     return result.rows;
   } catch (error) {
+    console.error("Error getting messages:", error);
     if (error.message.includes("Connection terminated unexpectedly")) {
       throw new Error("Servers are full, please wait");
     } else {
@@ -76,6 +79,7 @@ const addMessage = async (chat_id, message_text, user_name, full_name) => {
     );
     return result.rows[0];
   } catch (error) {
+    console.error("Error adding message:", error);
     if (error.message.includes("Connection terminated unexpectedly")) {
       throw new Error("Servers are full, please wait");
     } else {
