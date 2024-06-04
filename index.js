@@ -279,7 +279,7 @@ app.post(
       }
 
       const token = jwt.sign({ username: user.username }, secretKey, {
-        expiresIn: "1s",
+        expiresIn: "6h",
       });
       res.json({
         token,
