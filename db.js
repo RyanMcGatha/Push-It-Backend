@@ -13,7 +13,7 @@ const sslConfig = {
 const pool = new Pool({
   connectionString: process.env.DB_CONNECT,
   ssl: sslConfig,
-  idleTimeoutMillis: 5000,
+  idleTimeoutMillis: 0,
   max: 20,
 });
 
