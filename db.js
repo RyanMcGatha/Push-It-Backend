@@ -1,13 +1,14 @@
 const { Pool } = require("pg");
 require("dotenv").config();
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 if (!process.env.DB_CONNECT) {
   throw new Error("Environment variable DB_CONNECT not be set");
 }
 
 const sslConfig = {
-  rejectUnauthorized: true,
-  ca: process.env.DB_CA_CERT,
+  rejectUnauthorized: false,
 };
 
 const pool = new Pool({
