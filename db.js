@@ -4,17 +4,21 @@ require("dotenv").config();
 if (!process.env.DB_CONNECT) {
   throw new Error("Environment variable DB_CONNECT must be set");
 }
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const sslConfig = {
-  rejectUnauthorized: false,
+  rejectUnauthorized: true,
+  ca: process.env.DB_CA_CERT,
 };
 
 const pool = new Pool({
   connectionString: process.env.DB_CONNECT,
   ssl: sslConfig,
-  idleTimeoutMillis: 0,
-  max: 20,
+  idleTimeoutMillis: 30000,
+  max: 10,
+});
+
+pool.on("connect", () => {
+  console.log("Connected to the database via PgBouncer pool");
 });
 
 pool.on("error", (err, client) => {
