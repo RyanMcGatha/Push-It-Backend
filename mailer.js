@@ -90,11 +90,6 @@ const sendVerificationEmail = (email, token) => {
             <p>If the button doesn't work, copy and paste the URL below into your browser:</p>
             <p><a href="${url}" style="color: #32CD32;">${url}</a></p>
         </div>
-        <div class="footer">
-            <p>Have a question? <a href="mailto:support@pushit.dev">Reach out to our team</a></p>
-            <p>185 Berry St, Ste 5000, San Francisco, CA 94107</p>
-            <p>&copy; 2024 Push It, Inc.</p>
-        </div>
     </div>
 </body>
 </html>
