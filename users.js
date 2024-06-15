@@ -1,6 +1,8 @@
 const bcrypt = require("bcryptjs");
 const pool = require("./db");
 const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
+const secretKey = process.env.SECRET_KEY;
 
 const addUser = async (username, email, password, fullname) => {
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -34,6 +36,32 @@ const findUser = async (username) => {
   } finally {
     client.release();
   }
+};
+
+const findUserByEmail = async (email) => {
+  const client = await pool.connect();
+  try {
+    const result = await client.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error finding user by email:", error);
+    throw error;
+  } finally {
+    client.release();
+  }
+};
+
+const generatePasswordResetToken = async (email) => {
+  const user = await findUserByEmail(email);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const token = jwt.sign({ email: user.email }, secretKey, { expiresIn: "1h" });
+  // Optionally save the token in your database if you need to track it
+  return token;
 };
 
 const findUserByToken = async (token) => {
@@ -177,6 +205,8 @@ const updatePassword = async (username, newPassword) => {
 module.exports = {
   addUser,
   findUser,
+  findUserByEmail,
+  generatePasswordResetToken,
   updateProfilePic,
   findChatsByUsername,
   findUserProfile,

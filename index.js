@@ -3,12 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { sendVerificationEmail } = require("./mailer");
 const { body, query, validationResult } = require("express-validator");
 
+const { sendVerificationEmail, sendPasswordResetEmail } = require("./mailer");
 const {
   addUser,
   findUser,
+  findUserByEmail,
+  generatePasswordResetToken,
   updateProfilePic,
   findChatsByUsername,
   findUserProfile,
@@ -52,6 +54,60 @@ app.use((err, req, res, next) => {
 app.get("/", (req, res) => {
   res.send("root");
 });
+
+app.post(
+  "/request-password-reset",
+  [body("email").isEmail().withMessage("Valid email is required")],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email } = req.body;
+    try {
+      const token = await generatePasswordResetToken(email);
+      await sendPasswordResetEmail(email, token);
+      res.status(200).json({ message: "Password reset link sent to email" });
+    } catch (error) {
+      console.error("Error sending password reset email:", error);
+      res
+        .status(500)
+        .json({ message: "Error sending password reset email", error });
+    }
+  }
+);
+
+app.post(
+  "/reset-password",
+  [
+    body("token").notEmpty().withMessage("Token is required"),
+    body("newPassword").notEmpty().withMessage("New password is required"),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { token, newPassword } = req.body;
+    try {
+      const decoded = jwt.verify(token, secretKey);
+      const user = await findUserByEmail(decoded.email);
+      if (!user) {
+        return res
+          .status(400)
+          .json({ message: "Invalid token or user not found" });
+      }
+
+      const updatedUser = await updatePassword(user.username, newPassword);
+      res.json({ message: "Password reset successfully", user: updatedUser });
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ message: "Error resetting password", error });
+    }
+  }
+);
 
 app.patch(
   "/profile-pic",
