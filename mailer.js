@@ -114,7 +114,7 @@ const sendVerificationEmail = (email, token) => {
 
 const sendPasswordResetEmail = (email, token) => {
   const url = `https://push-it-backend.vercel.app/reset-password/:${token}`;
-  const devUrl = `http://localhost:5173/reset-password/:${token}`;
+  const devUrl = `http://localhost:5173/reset-password/${token}`;
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
