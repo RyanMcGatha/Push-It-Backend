@@ -113,7 +113,7 @@ const sendVerificationEmail = (email, token) => {
 };
 
 const sendPasswordResetEmail = (email, token) => {
-  const url = `https://push-it-frontend.vercel.app/reset-password?token=${token}`;
+  const url = `https://push-it-backend.vercel.app/reset-password?token=${token}`;
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">

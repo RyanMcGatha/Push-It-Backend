@@ -60,7 +60,7 @@ const generatePasswordResetToken = async (email) => {
   }
 
   const token = jwt.sign({ email: user.email }, secretKey, { expiresIn: "1h" });
-  // Optionally save the token in your database if you need to track it
+
   return token;
 };
 
