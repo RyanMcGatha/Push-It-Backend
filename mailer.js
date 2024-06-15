@@ -113,7 +113,8 @@ const sendVerificationEmail = (email, token) => {
 };
 
 const sendPasswordResetEmail = (email, token) => {
-  const url = `https://push-it-backend.vercel.app/reset-password?token=${token}`;
+  const url = `https://push-it-backend.vercel.app/reset-password/:${token}`;
+  const devUrl = `http://localhost:5173/reset-password/:${token}`;
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -194,10 +195,10 @@ const sendPasswordResetEmail = (email, token) => {
             <h2>Reset your password</h2>
             <p>You're receiving this email because you requested a password reset for your Push It account. Please click the button below to reset your password.</p>
             <div class="button">
-                <a href="${url}">Reset Password</a>
+                <a href="${devUrl}">Reset Password</a>
             </div>
             <p>If the button doesn't work, copy and paste the URL below into your browser:</p>
-            <p><a href="${url}" style="color: #32CD32;">${url}</a></p>
+            <p><a href="${devUrl}" style="color: #32CD32;">${devUrl}</a></p>
         </div>
     </div>
 </body>
