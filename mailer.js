@@ -4,7 +4,7 @@ require("dotenv").config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendVerificationEmail = (email, token) => {
-  const url = `https://push-it-backend.vercel.app/verify-email?token=${token}`;
+  const url = `https://push-it-backend.vercel.app/verify-email/${token}`;
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
