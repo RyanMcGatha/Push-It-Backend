@@ -4,7 +4,7 @@ require("dotenv").config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendVerificationEmail = (email, token) => {
-  const url = `https://push-it-backend.vercel.app/verify-email/${token}`;
+  const frontendUrl = `https://pushit.dev/verify-email/${token}`;
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -37,10 +37,6 @@ const sendVerificationEmail = (email, token) => {
         .content {
             text-align: center;
             padding: 20px 0;
-        }
-        .content img {
-            max-width: 100%;
-            height: auto;
         }
         .content h2 {
             font-size: 24px;
@@ -85,10 +81,10 @@ const sendVerificationEmail = (email, token) => {
             <h2>Verify your email address</h2>
             <p>You're one step away from completing your profile and starting to use Push It. Please verify your email address to get started.</p>
             <div class="button">
-                <a href="${url}">Verify Email Address</a>
+                <a href="${frontendUrl}">Verify Email Address</a>
             </div>
             <p>If the button doesn't work, copy and paste the URL below into your browser:</p>
-            <p><a href="${url}" style="color: #32CD32;">${url}</a></p>
+            <p><a href="${frontendUrl}" style="color: #32CD32;">${frontendUrl}</a></p>
         </div>
     </div>
 </body>
@@ -113,8 +109,7 @@ const sendVerificationEmail = (email, token) => {
 };
 
 const sendPasswordResetEmail = (email, token) => {
-  const url = `https://push-it-backend.vercel.app/reset-password/${token}`;
-
+  const frontendUrl = `https://pushit.dev/reset-password/${token}`;
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
@@ -147,10 +142,6 @@ const sendPasswordResetEmail = (email, token) => {
         .content {
             text-align: center;
             padding: 20px 0;
-        }
-        .content img {
-            max-width: 100%;
-            height: auto;
         }
         .content h2 {
             font-size: 24px;
@@ -195,10 +186,10 @@ const sendPasswordResetEmail = (email, token) => {
             <h2>Reset your password</h2>
             <p>You're receiving this email because you requested a password reset for your Push It account. Please click the button below to reset your password.</p>
             <div class="button">
-                <a href="${url}">Reset Password</a>
+                <a href="${frontendUrl}">Reset Password</a>
             </div>
             <p>If the button doesn't work, copy and paste the URL below into your browser:</p>
-            <p><a href="${url}" style="color: #32CD32;">${url}</a></p>
+            <p><a href="${frontendUrl}" style="color: #32CD32;">${frontendUrl}</a></p>
         </div>
     </div>
 </body>
